@@ -890,15 +890,120 @@ select.form-control {
   .cola-grid  { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ── MOBILE HEADER (hamburger) ──────────────── */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  z-index: 200;
+  align-items: center;
+  padding: 0 16px;
+  gap: 14px;
+}
+
+.mobile-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-green);
+  flex: 1;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.hamburger:hover { background: var(--bg-card); }
+
+/* Overlay que cubre el contenido cuando el sidebar está abierto */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 150;
+}
+
+.sidebar-overlay.open { display: block; }
+
 @media (max-width: 768px) {
-  .sidebar { width: 100%; min-height: auto; position: relative; flex-direction: row; }
-  .main-content { margin-left: 0; padding: 16px; max-width: 100vw; }
-  .stat-cards { grid-template-columns: repeat(2, 1fr); }
+  /* Header mobile visible */
+  .mobile-header { display: flex; }
+
+  /* Sidebar: drawer oculto a la izquierda */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 270px;
+    z-index: 160;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  /* Contenido principal: sin margen, con padding arriba para el header */
+  .main-content {
+    margin-left: 0;
+    padding: 72px 16px 24px;
+    max-width: 100vw;
+  }
+
+  /* Stat cards: 2 columnas en mobile */
+  .stat-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Bankroll hero: stack vertical */
+  .bankroll-hero { flex-direction: column; gap: 20px; padding: 20px; }
+  .bankroll-hero-value { font-size: 32px; }
+  .bankroll-hero-bookies { flex-direction: row; flex-wrap: wrap; }
+  .bookie-chip { min-width: 90px; }
+
+  /* Formularios: 1 columna */
   .form-grid { grid-template-columns: 1fr; }
-  .filters { flex-direction: column; }
-  .cola-grid { grid-template-columns: 1fr; }
-  .cal-grid { grid-template-columns: repeat(7, 1fr); }
-  .cal-day { min-height: 70px; }
+
+  /* Filtros: stack vertical */
+  .filters { flex-direction: column; gap: 8px; }
+  .filters .form-group { min-width: unset; width: 100%; }
+
+  /* Tablas: scroll horizontal */
+  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 600px; }
+
+  /* Calendarios */
+  .cal-grid { grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day { min-height: 52px; padding: 4px; font-size: 10px; }
+  .cal-day-num { font-size: 11px; }
+  .cal-day-bets { display: none; }
+
+  /* Reglas: stack vertical */
+  #section-reglas > div:last-child { grid-template-columns: 1fr !important; }
+
+  /* Cola grid */
+  .cola-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Cards más compactas */
+  .card { padding: 16px; }
+
+  /* Modales: ancho completo */
+  .modal { width: calc(100vw - 32px); max-width: 100%; margin: 16px; padding: 24px 20px; }
+
+  /* Sección titles más chicos */
+  .section-title { font-size: 20px; }
+
+  /* Botones de acción en tabla: más compactos */
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
+
+  /* Bookie cards: stack vertical */
+  .bookie-card { flex-direction: column; gap: 12px; }
+  .bookie-card > div:last-child { align-self: flex-start; flex-direction: row !important; }
 }
 
 /* ── CALENDARIO ──────────────────────────────── */

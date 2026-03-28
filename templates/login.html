@@ -16,6 +16,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 16px;
     }
     .login-card {
       background: #171e2e;
@@ -46,6 +47,7 @@
       color: #64748b;
       margin-bottom: 6px;
     }
+    input[type="text"],
     input[type="password"] {
       width: 100%;
       background: #111520;
@@ -56,8 +58,9 @@
       font-size: 15px;
       font-family: inherit;
       outline: none;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
+    input[type="text"]:focus,
     input[type="password"]:focus { border-color: #3b82f6; }
     button {
       width: 100%;
@@ -70,6 +73,7 @@
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
+      margin-top: 4px;
     }
     button:hover { background: #16a34a; }
     .error {
@@ -85,14 +89,16 @@
 </head>
 <body>
   <div class="login-card">
-    <div class="login-title">Apuestas de Valor</div>
-    <div class="login-sub">Ingresá tu contraseña para continuar</div>
+    <div class="login-title">⚡ Value Bets</div>
+    <div class="login-sub">Ingresá tus credenciales para continuar</div>
     {% if error %}
       <div class="error">{{ error }}</div>
     {% endif %}
     <form method="POST">
+      <label>Usuario</label>
+      <input type="text" name="usuario" autofocus placeholder="usuario" autocomplete="username" />
       <label>Contraseña</label>
-      <input type="password" name="password" autofocus placeholder="••••••••" />
+      <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" />
       <button type="submit">Entrar</button>
     </form>
   </div>

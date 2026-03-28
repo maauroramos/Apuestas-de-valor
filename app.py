@@ -52,12 +52,13 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-cambiar-en-produccion")
 
 # Contraseña de acceso (variable de entorno APP_PASSWORD, default solo para local)
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
+APP_USER     = os.environ.get("APP_USER",     "apuestas")
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "Devalor")
 
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if APP_PASSWORD and not session.get("autenticado"):
+        if not session.get("autenticado"):
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorated
@@ -72,7 +73,7 @@ def setup():
     """Inicializa la DB y verifica autenticación."""
     init_db()
     # Proteger todas las rutas excepto login/logout y estáticos
-    if APP_PASSWORD and not session.get("autenticado"):
+    if not session.get("autenticado"):
         if request.endpoint not in ("login", "logout", "static"):
             if request.path.startswith("/api/"):
                 return jsonify({"error": "No autorizado"}), 401
@@ -85,14 +86,14 @@ def setup():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if not APP_PASSWORD:
-        return redirect(url_for("index"))
     error = None
     if request.method == "POST":
-        if request.form.get("password") == APP_PASSWORD:
+        usuario = request.form.get("usuario", "")
+        password = request.form.get("password", "")
+        if usuario == APP_USER and password == APP_PASSWORD:
             session["autenticado"] = True
             return redirect(url_for("index"))
-        error = "Contraseña incorrecta"
+        error = "Usuario o contraseña incorrectos"
     return render_template("login.html", error=error)
 
 @app.route("/logout")

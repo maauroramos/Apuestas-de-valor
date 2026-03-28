@@ -79,17 +79,22 @@ def login_required(f):
 
 _db_initialized = False
 
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Devuelve JSON en vez de HTML para errores en rutas API."""
+    import traceback
+    app.logger.error(traceback.format_exc())
+    if request.path.startswith("/api/"):
+        return jsonify({"error": f"Error interno: {str(e)}"}), 500
+    return str(e), 500
+
 @app.before_request
 def setup():
-    """Inicializa la DB (solo una vez) y verifica autenticación."""
+    """Inicializa la DB en cada request (necesario en serverless) y verifica autenticación."""
     global _db_initialized
     if not _db_initialized:
-        try:
-            init_db()
-            _db_initialized = True
-        except Exception as e:
-            # Si falla init_db, loguear pero no romper la app
-            app.logger.error(f"Error init_db: {e}")
+        init_db()
+        _db_initialized = True
     # Proteger todas las rutas excepto login/logout y estáticos
     if not session.get("autenticado"):
         if request.endpoint not in ("login", "logout", "static"):

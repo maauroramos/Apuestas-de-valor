@@ -232,7 +232,7 @@ const REGLAS_EV = [
   { min: 20,   max: 24.99, label: "20% – 24.99%",   base: 30 },
   { min: 25,   max: 29.99, label: "25% – 29.99%",   base: 40 },
   { min: 30,   max: 34.99, label: "30% – 34.99%",   base: 55 },
-  { min: 35,   max: 40.99, label: "35% – 40.99%",   base: 70 },
+  { min: 35,   max: Infinity, label: "35%+",          base: 70 },
 ];
 
 const REGLAS_PROB = [
@@ -245,7 +245,7 @@ const REGLAS_PROB = [
   { min: 60, max: 65, label: "60% – 65%", base: 15  },
   { min: 65, max: 70, label: "65% – 70%", base: 25  },
   { min: 70, max: 75, label: "70% – 75%", base: 40  },
-  { min: 75, max: 80, label: "75% – 80%", base: 55  },
+  { min: 75, max: 100, label: "75% – 100%", base: 55  },
 ];
 
 async function loadReglas() {

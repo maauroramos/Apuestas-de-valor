@@ -577,122 +577,63 @@
   <!-- ── CALCULADORA DE STAKE ─────────────── -->
   <section id="section-calculadora" class="section">
     <div class="section-title">Calculadora de Stake</div>
-    <div class="section-subtitle">Ingresá los datos de la apuesta y calculá el stake óptimo según Kelly y criterio EV</div>
+    <div class="section-subtitle">Ingresá la cuota y tu probabilidad estimada para saber cuánto apostár</div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:760px">
 
       <!-- Inputs -->
       <div class="card">
-        <div class="card-title">Datos de la apuesta</div>
-
-        <div class="form-group">
-          <label class="form-label">Probabilidad estimada (%)</label>
-          <input type="number" class="form-control" id="calc-prob"
-            placeholder="Ej: 55" min="1" max="99" step="0.1"
-            oninput="calcularStake()" />
-          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Tu estimación real de que gane</div>
-        </div>
-
+        <div class="card-title">Datos</div>
         <div class="form-group">
           <label class="form-label">Cuota del bookie</label>
           <input type="number" class="form-control" id="calc-cuota"
             placeholder="Ej: 2.10" min="1.01" step="0.01"
             oninput="calcularStake()" />
         </div>
-
         <div class="form-group">
-          <label class="form-label">Bankroll total ($)</label>
-          <input type="number" class="form-control" id="calc-bankroll"
-            placeholder="Ej: 100000" min="1" step="1"
+          <label class="form-label">Probabilidad estimada (%)</label>
+          <input type="number" class="form-control" id="calc-prob"
+            placeholder="Ej: 55" min="1" max="99" step="0.1"
             oninput="calcularStake()" />
-          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
-            <a href="#" onclick="autocompletarBankroll();return false;" style="color:var(--accent-blue)">
-              ↻ Usar bankroll actual de bookies
-            </a>
-          </div>
         </div>
 
-        <!-- EV y prob implícita -->
-        <div id="calc-ev-preview" style="display:none;margin-top:8px;padding:14px;background:var(--bg-card-hover);border-radius:8px;border:1px solid var(--border)">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:13px;color:var(--text-muted)">EV esperado</span>
-            <span id="calc-ev-valor" style="font-size:15px;font-weight:700"></span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:13px;color:var(--text-muted)">Prob. implícita bookie</span>
-            <span id="calc-prob-implicita" style="font-size:13px;color:var(--text-primary)"></span>
-          </div>
+        <!-- EV calculado -->
+        <div id="calc-ev-preview" style="display:none;margin-top:4px;padding:12px 14px;background:var(--bg-card-hover);border-radius:8px;border:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between">
-            <span style="font-size:13px;color:var(--text-muted)">Edge (ventaja tuya)</span>
-            <span id="calc-edge" style="font-size:13px;font-weight:600"></span>
+            <span style="font-size:13px;color:var(--text-muted)">EV calculado</span>
+            <span id="calc-ev-valor" style="font-size:15px;font-weight:700"></span>
           </div>
         </div>
       </div>
 
-      <!-- Resultados -->
-      <div id="calc-resultados" style="display:none;display:flex;flex-direction:column;gap:16px">
+      <!-- Resultado -->
+      <div id="calc-resultados" style="display:none;flex-direction:column;gap:12px">
 
-        <!-- Alerta EV negativo o bajo -->
         <div id="calc-alerta" style="display:none;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600"></div>
 
-        <!-- Kelly -->
+        <!-- Desglose -->
         <div class="card">
-          <div class="card-title" style="margin-bottom:12px">Criterio Kelly</div>
           <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card-hover);border-radius:6px">
-              <div>
-                <div style="font-size:12px;color:var(--text-muted)">Kelly completo</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Agresivo — no recomendado</div>
-              </div>
-              <div style="text-align:right">
-                <div id="calc-kelly-pct" style="font-size:14px;font-weight:600;color:var(--text-primary)"></div>
-                <div id="calc-kelly-monto" style="font-size:13px;color:var(--text-muted)"></div>
-              </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text-muted)">Stake base (3% bankroll)</span>
+              <span id="calc-stake-base" style="font-weight:600"></span>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card-hover);border-radius:6px">
-              <div>
-                <div style="font-size:12px;color:var(--text-muted)">Medio Kelly (50%)</div>
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Moderado</div>
-              </div>
-              <div style="text-align:right">
-                <div id="calc-medio-kelly-pct" style="font-size:14px;font-weight:600;color:var(--text-primary)"></div>
-                <div id="calc-medio-kelly-monto" style="font-size:13px;color:var(--text-muted)"></div>
-              </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text-muted)">Ajuste por EV <span id="calc-ev-rango" style="font-size:11px"></span></span>
+              <span id="calc-ajuste-ev" style="font-weight:600"></span>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-main);border-radius:6px;border:2px solid var(--accent-green)">
-              <div>
-                <div style="font-size:12px;color:var(--text-muted)">Cuarto Kelly (25%)</div>
-                <div style="font-size:11px;color:var(--accent-green);margin-top:2px;font-weight:600">★ Recomendado para empezar</div>
-              </div>
-              <div style="text-align:right">
-                <div id="calc-cuarto-kelly-pct" style="font-size:14px;font-weight:700;color:var(--accent-green)"></div>
-                <div id="calc-cuarto-kelly-monto" style="font-size:13px;color:var(--accent-green)"></div>
-              </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text-muted)">Ajuste por prob. <span id="calc-prob-rango" style="font-size:11px"></span></span>
+              <span id="calc-ajuste-prob" style="font-weight:600"></span>
             </div>
           </div>
         </div>
 
-        <!-- Criterio EV -->
-        <div class="card">
-          <div class="card-title" style="margin-bottom:12px">Criterio por EV%</div>
-          <div id="calc-ev-criterio-texto" style="font-size:13px;color:var(--text-muted);margin-bottom:12px"></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-card-hover);border-radius:6px">
-            <div>
-              <div style="font-size:12px;color:var(--text-muted)">Rango sugerido</div>
-            </div>
-            <div style="text-align:right">
-              <div id="calc-ev-criterio-pct" style="font-size:14px;font-weight:600;color:var(--text-primary)"></div>
-              <div id="calc-ev-criterio-montos" style="font-size:12px;color:var(--text-muted)"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stake final recomendado -->
-        <div class="card" style="border:2px solid var(--accent-blue)">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-blue);margin-bottom:8px;font-weight:700">Stake final recomendado</div>
-          <div id="calc-stake-final" style="font-size:28px;font-weight:800;color:var(--text-primary)"></div>
-          <div id="calc-stake-final-pct" style="font-size:13px;color:var(--text-muted);margin-top:4px"></div>
-          <div id="calc-stake-tope" style="font-size:12px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"></div>
+        <!-- Stake final -->
+        <div class="card" style="border:2px solid var(--accent-blue);text-align:center;padding:20px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-blue);margin-bottom:8px;font-weight:700">Stake recomendado</div>
+          <div id="calc-stake-final" style="font-size:32px;font-weight:800;color:var(--text-primary)"></div>
+          <div id="calc-stake-fuera-rango" style="display:none;font-size:12px;color:var(--accent-yellow);margin-top:6px"></div>
         </div>
 
       </div>
@@ -771,7 +712,7 @@
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-<script src="/static/app.js?v=14"></script>
+<script src="/static/app.js?v=15"></script>
 <script>
   // Función helper para limpiar filtros (definida inline para acceso directo)
   function limpiarFiltros() {

@@ -13,7 +13,7 @@ import json
 # Agregar src/ al path para importar los módulos existentes
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect, url_for, send_file
 from datetime import datetime, timedelta, date
 from functools import wraps
 
@@ -603,6 +603,46 @@ def api_eliminar_captura(captura_id):
 # ──────────────────────────────────────────────
 # MAIN
 # ──────────────────────────────────────────────
+
+# ──────────────────────────────────────────────
+# BACKUP
+# ──────────────────────────────────────────────
+
+@app.route("/api/backup/db")
+def api_backup_db():
+    """Descarga la base de datos SQLite completa."""
+    from database import DB_PATH
+    fecha = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    return send_file(
+        DB_PATH,
+        as_attachment=True,
+        download_name=f"apuestas_backup_{fecha}.db",
+        mimetype="application/octet-stream"
+    )
+
+@app.route("/api/backup/csv")
+def api_backup_csv():
+    """Descarga todas las apuestas como CSV."""
+    import csv, io
+    apuestas = get_apuestas()
+    if not apuestas:
+        return jsonify({"error": "Sin datos"}), 404
+
+    output = io.StringIO()
+    campos = ["id","fecha","bookie_nombre","evento","mercado","seleccion",
+              "cuota","stake","prob_estimada","ev_percent","estado","ganancia_neta","notas"]
+    writer = csv.DictWriter(output, fieldnames=campos, extrasaction="ignore")
+    writer.writeheader()
+    writer.writerows(apuestas)
+
+    fecha = datetime.now().strftime("%Y-%m-%d")
+    return send_file(
+        io.BytesIO(output.getvalue().encode("utf-8")),
+        as_attachment=True,
+        download_name=f"apuestas_{fecha}.csv",
+        mimetype="text/csv"
+    )
+
 
 if __name__ == "__main__":
     init_db()

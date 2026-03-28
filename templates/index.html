@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Apuestas de Valor</title>
-  <link rel="stylesheet" href="/static/style.css?v=6" />
+  <link rel="stylesheet" href="/static/style.css?v=7" />
   <!-- Chart.js desde CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -57,7 +57,15 @@
       </div>
     </div>
   </div>
-  <div style="padding:16px 20px;border-top:1px solid var(--border);margin-top:auto">
+  <div style="padding:12px 20px 16px;border-top:1px solid var(--border);margin-top:auto;display:flex;flex-direction:column;gap:4px">
+    <a href="/api/backup/db" style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;text-decoration:none;padding:8px 10px;border-radius:6px;transition:background .15s"
+       onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+      <span>💾</span> Backup DB
+    </a>
+    <a href="/api/backup/csv" style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;text-decoration:none;padding:8px 10px;border-radius:6px;transition:background .15s"
+       onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+      <span>📄</span> Exportar CSV
+    </a>
     <a href="/logout" style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;text-decoration:none;padding:8px 10px;border-radius:6px;transition:background .15s"
        onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
       <span>🔒</span> Cerrar sesión

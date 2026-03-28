@@ -55,7 +55,10 @@ def _save_config(data):
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-cambiar-en-produccion")
+app.secret_key = os.environ.get("SECRET_KEY", "apuestas-valor-secret-2024-xK9mP")
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = IS_VERCEL  # HTTPS solo en producción
+app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 # Contraseña de acceso (variable de entorno APP_PASSWORD, default solo para local)
 APP_USER     = os.environ.get("APP_USER",     "apuestas")

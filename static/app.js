@@ -36,8 +36,9 @@ function showSection(name) {
   if (name === "nueva")       prepNuevaApuesta();
   if (name === "cola")        loadCola();
   if (name === "calendario")  loadCalendario();
-  if (name === "reglas")      loadReglas();
-  if (name === "retiros")     loadRetiros();
+  if (name === "reglas")        loadReglas();
+  if (name === "retiros")       loadRetiros();
+  if (name === "calculadora")   loadCalculadora();
 }
 
 // ── Toast notifications ───────────────────────
@@ -1221,6 +1222,146 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === e.currentTarget) closeEditarFondosModal();
   });
 });
+
+// ═══════════════════════════════════════════
+// CALCULADORA DE STAKE
+// ═══════════════════════════════════════════
+
+function calcularStake() {
+  const prob    = parseFloat(document.getElementById("calc-prob").value);
+  const cuota   = parseFloat(document.getElementById("calc-cuota").value);
+  const bankroll = parseFloat(document.getElementById("calc-bankroll").value);
+
+  const previewEl    = document.getElementById("calc-ev-preview");
+  const resultadosEl = document.getElementById("calc-resultados");
+
+  if (!prob || !cuota || prob <= 0 || prob >= 100 || cuota <= 1) {
+    previewEl.style.display    = "none";
+    resultadosEl.style.display = "none";
+    return;
+  }
+
+  const p = prob / 100;
+  const q = 1 - p;
+  const b = cuota - 1;  // ganancia neta por unidad
+
+  // EV y prob implícita
+  const ev     = p * cuota - 1;          // fracción (0.10 = 10%)
+  const evPct  = ev * 100;
+  const probImpl = (1 / cuota) * 100;
+  const edge   = prob - probImpl;
+
+  // Mostrar preview
+  const evEl = document.getElementById("calc-ev-valor");
+  evEl.textContent = `${evPct >= 0 ? "+" : ""}${evPct.toFixed(2)}%`;
+  evEl.style.color = evPct >= 2 ? "var(--accent-green)" : evPct >= 0 ? "var(--accent-yellow)" : "var(--accent-red)";
+
+  document.getElementById("calc-prob-implicita").textContent = `${probImpl.toFixed(1)}%`;
+  const edgeEl = document.getElementById("calc-edge");
+  edgeEl.textContent = `${edge >= 0 ? "+" : ""}${edge.toFixed(1)} pp`;
+  edgeEl.style.color = edge > 0 ? "var(--accent-green)" : "var(--accent-red)";
+
+  previewEl.style.display = "block";
+
+  if (!bankroll || bankroll <= 0) {
+    resultadosEl.style.display = "none";
+    return;
+  }
+
+  // Kelly
+  const kelly       = (p * b - q) / b;
+  const medioKelly  = kelly * 0.5;
+  const cuartoKelly = kelly * 0.25;
+
+  const TOPE_MAX = 0.05;  // nunca más del 5%
+
+  const kellyFinal       = Math.max(0, Math.min(kelly, TOPE_MAX));
+  const medioKellyFinal  = Math.max(0, Math.min(medioKelly, TOPE_MAX));
+  const cuartoKellyFinal = Math.max(0, Math.min(cuartoKelly, TOPE_MAX));
+
+  document.getElementById("calc-kelly-pct").textContent        = `${(kellyFinal * 100).toFixed(2)}%`;
+  document.getElementById("calc-kelly-monto").textContent      = `$${fmt(kellyFinal * bankroll)}`;
+  document.getElementById("calc-medio-kelly-pct").textContent  = `${(medioKellyFinal * 100).toFixed(2)}%`;
+  document.getElementById("calc-medio-kelly-monto").textContent= `$${fmt(medioKellyFinal * bankroll)}`;
+  document.getElementById("calc-cuarto-kelly-pct").textContent = `${(cuartoKellyFinal * 100).toFixed(2)}%`;
+  document.getElementById("calc-cuarto-kelly-monto").textContent = `$${fmt(cuartoKellyFinal * bankroll)}`;
+
+  // Criterio por EV
+  let evCriterioMin, evCriterioMax, evCriterioTexto;
+  if (evPct < 2) {
+    evCriterioMin = 0; evCriterioMax = 0;
+    evCriterioTexto = "EV menor al 2% — no se recomienda apostar";
+  } else if (evPct < 5) {
+    evCriterioMin = 0.01; evCriterioMax = 0.02;
+    evCriterioTexto = `EV entre 2% y 5% → stake normal (1–2% del bankroll)`;
+  } else if (evPct < 10) {
+    evCriterioMin = 0.02; evCriterioMax = 0.03;
+    evCriterioTexto = `EV entre 5% y 10% → stake medio (2–3% del bankroll)`;
+  } else {
+    evCriterioMin = 0.03; evCriterioMax = 0.04;
+    evCriterioTexto = `EV mayor al 10% → stake alto (3–4% del bankroll)`;
+  }
+
+  document.getElementById("calc-ev-criterio-texto").textContent = evCriterioTexto;
+  if (evCriterioMax > 0) {
+    document.getElementById("calc-ev-criterio-pct").textContent =
+      `${(evCriterioMin * 100).toFixed(0)}–${(evCriterioMax * 100).toFixed(0)}%`;
+    document.getElementById("calc-ev-criterio-montos").textContent =
+      `$${fmt(evCriterioMin * bankroll)} – $${fmt(evCriterioMax * bankroll)}`;
+  } else {
+    document.getElementById("calc-ev-criterio-pct").textContent = "—";
+    document.getElementById("calc-ev-criterio-montos").textContent = "";
+  }
+
+  // Alerta
+  const alertaEl = document.getElementById("calc-alerta");
+  if (evPct < 0) {
+    alertaEl.style.display = "block";
+    alertaEl.style.background = "rgba(239,68,68,.15)";
+    alertaEl.style.color = "var(--accent-red)";
+    alertaEl.textContent = "⚠️ EV negativo — esta apuesta tiene valor esperado negativo. No apostar.";
+  } else if (evPct < 2) {
+    alertaEl.style.display = "block";
+    alertaEl.style.background = "rgba(234,179,8,.12)";
+    alertaEl.style.color = "var(--accent-yellow)";
+    alertaEl.textContent = "⚡ EV menor al 2% — edge mínimo. Considerá si vale la pena.";
+  } else {
+    alertaEl.style.display = "none";
+  }
+
+  // Stake final recomendado = cuarto Kelly, con tope del 3% si EV < 10%, 4% si EV >= 10%
+  const tope = evPct >= 10 ? 0.04 : 0.03;
+  const stakeFinalPct = Math.max(0, Math.min(cuartoKellyFinal, tope));
+  const stakeFinalMonto = stakeFinalPct * bankroll;
+
+  document.getElementById("calc-stake-final").textContent =
+    evPct < 2 ? "No apostar" : `$${fmt(stakeFinalMonto)}`;
+  document.getElementById("calc-stake-final-pct").textContent =
+    evPct < 2 ? "" : `${(stakeFinalPct * 100).toFixed(2)}% del bankroll`;
+  document.getElementById("calc-stake-tope").textContent =
+    evPct >= 2
+      ? `Tope aplicado: ${(tope * 100).toFixed(0)}% del bankroll ($${fmt(tope * bankroll)}). Máximo absoluto: 5% ($${fmt(0.05 * bankroll)})`
+      : "";
+
+  resultadosEl.style.display = "flex";
+}
+
+async function autocompletarBankroll() {
+  try {
+    const bookies = await api("/api/bookies");
+    const total = bookies.reduce((s, b) => s + (b.fondos_actuales || 0), 0);
+    document.getElementById("calc-bankroll").value = Math.round(total);
+    calcularStake();
+  } catch (e) {
+    toast("Error al obtener bookies", "error");
+  }
+}
+
+function loadCalculadora() {
+  // Autocompletar bankroll si aún no tiene valor
+  const bankrollInput = document.getElementById("calc-bankroll");
+  if (!bankrollInput.value) autocompletarBankroll();
+}
 
 // ═══════════════════════════════════════════
 // COLA DE TICKETS

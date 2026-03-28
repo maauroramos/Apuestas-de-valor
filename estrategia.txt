@@ -1,0 +1,238 @@
+═══════════════════════════════════════════════════════════════
+         GUÍA DE ESTRATEGIA — APUESTAS DE VALOR (VALUE BETTING)
+═══════════════════════════════════════════════════════════════
+
+La idea central: si apostás consistentemente a selecciones donde
+tu probabilidad estimada supera la implícita en la cuota, el EV
+positivo se materializa con el tiempo. El resultado de UNA apuesta
+es aleatorio. El resultado de 500 apuestas no lo es.
+
+La disciplina en el staking es lo que separa a quien sobrevive
+a largo plazo de quien quiebra su bankroll en una mala racha.
+
+
+───────────────────────────────────────────────────────────────
+1. CUÁNTO PONER EN CADA APUESTA
+───────────────────────────────────────────────────────────────
+
+Regla general recomendada para empezar: stake fijo del 1-3%
+del bankroll total por apuesta.
+
+  Bankroll $100.000  →  stake entre $1.000 y $3.000 por apuesta
+  Bankroll $50.000   →  stake entre $500 y $1.500 por apuesta
+
+Por qué no más del 3%:
+  - Las rachas perdedoras existen aunque tengas edge positivo.
+  - Con el 3% necesitás perder ~34 apuestas seguidas para
+    reducir tu bankroll a la mitad. Con el 10%, solo necesitás 7.
+  - El value betting es un juego de volumen. Querés sobrevivir
+    lo suficiente para que la estadística trabaje a tu favor.
+
+
+───────────────────────────────────────────────────────────────
+2. CRITERIO DE KELLY — EL MÉTODO CIENTÍFICO DE STAKING
+───────────────────────────────────────────────────────────────
+
+Kelly es la fórmula matemática que maximiza el crecimiento del
+bankroll a largo plazo sin arruinarte.
+
+  Fórmula:
+  f = (p × b - q) / b
+
+  Donde:
+    f = fracción del bankroll a apostar
+    p = tu probabilidad estimada (ej: 0.58)
+    q = probabilidad de perder (1 - p)
+    b = ganancia neta por unidad apostada (cuota - 1)
+
+  Ejemplo:
+    Cuota: 2.10  →  b = 1.10
+    Tu prob estimada: 55%  →  p = 0.55, q = 0.45
+
+    f = (0.55 × 1.10 - 0.45) / 1.10
+    f = (0.605 - 0.45) / 1.10
+    f = 0.155 / 1.10
+    f = 0.14  →  14% del bankroll
+
+  Problema: Kelly completo es muy agresivo. Una mala estimación
+  de probabilidad te destruye el bankroll rápido.
+
+  SOLUCIÓN: Usar Medio Kelly o Cuarto Kelly.
+
+  Medio Kelly  → multiplicá el resultado por 0.5  (7% en el ejemplo)
+  Cuarto Kelly → multiplicá el resultado por 0.25 (3.5% en el ejemplo)
+
+  Para empezar se recomienda Cuarto Kelly con un tope máximo
+  del 3% del bankroll por apuesta.
+
+
+───────────────────────────────────────────────────────────────
+3. ¿APOSTAR MÁS SI EL EV ES ALTO?
+───────────────────────────────────────────────────────────────
+
+Sí, pero con límites.
+
+Kelly hace exactamente eso: te dice que apostés más cuando
+el edge es mayor. Sin embargo, hay que tener cuidado con:
+
+  a) Tu estimación de probabilidad puede estar equivocada.
+     A mayor stake, mayor el costo del error.
+
+  b) Los bookies limitan o cierran cuentas de ganadores.
+     Apostar mucho en una sola selección llama la atención.
+
+  c) La varianza aumenta. Un EV alto no garantiza ganar
+     esa apuesta puntual.
+
+  Criterio práctico según EV:
+
+    EV entre 2% y 5%   →  stake normal (1-2% del bankroll)
+    EV entre 5% y 10%  →  stake medio  (2-3% del bankroll)
+    EV mayor al 10%    →  stake alto   (3-4% del bankroll, máximo)
+
+  Nunca superes el 5% del bankroll en una sola apuesta,
+  sin importar cuán bueno parezca el EV.
+
+
+───────────────────────────────────────────────────────────────
+4. ¿APOSTAR MÁS SI LA PROBABILIDAD ES ALTA?
+───────────────────────────────────────────────────────────────
+
+No necesariamente. Lo que importa es el EV, no la probabilidad.
+
+  Una apuesta al 90% con cuota 1.05 puede tener EV negativo.
+  Una apuesta al 35% con cuota 3.50 puede tener EV positivo.
+
+  La probabilidad alta en sí misma no genera valor. El valor
+  viene de que el bookie esté subestimando esa probabilidad.
+
+  Ejemplo de trampa común:
+    Cuota 1.10  →  el bookie implica 90.9% de probabilidad
+    Vos estimás 92%  →  EV = 0.92 × 1.10 - 1 = +1.2%
+    Stake recomendado: mínimo (el edge es pequeño y la cuota
+    muy baja deja poco margen de error)
+
+  Ejemplo de valor real:
+    Cuota 3.20  →  el bookie implica 31.25% de probabilidad
+    Vos estimás 38%  →  EV = 0.38 × 3.20 - 1 = +21.6%
+    Stake recomendado: máximo permitido por tu estrategia
+
+
+───────────────────────────────────────────────────────────────
+5. GESTIÓN DEL BANKROLL EN LA PRÁCTICA
+───────────────────────────────────────────────────────────────
+
+  a) BANKROLL SEPARADO POR BOOKIE
+     Llevá un registro de cuánto tenés en cada bookie.
+     No mezcles el conteo. Si un bookie te limita, ese
+     bankroll es independiente.
+
+  b) RECALCULÁ EL STAKE PERIÓDICAMENTE
+     Si tu bankroll crece, el stake en pesos también crece.
+     Si baja, el stake baja. Nunca usés un stake fijo en pesos
+     que ignoré el estado actual del bankroll.
+     Recalculá cada semana o cada 50 apuestas.
+
+  c) NUNCA PERSIGAS PÉRDIDAS
+     Si perdiste hoy, no aumentes el stake para "recuperar".
+     Eso destruye cualquier estrategia matemáticamente sólida.
+
+  d) REGLA DEL 50%
+     Si tu bankroll cae un 50%, parás, analizás qué salió mal
+     (¿tus estimaciones eran correctas? ¿apostaste con edge real?)
+     y recién ahí continuás. Una caída del 50% puede ser mala
+     suerte, o puede ser que tu modelo esté roto.
+
+  e) CUÁNTAS APUESTAS NECESITÁS
+     El edge se materializa con volumen. Con 50 apuestas todavía
+     podés estar abajo aunque tengas edge positivo.
+     Con 500+ apuestas, si tenés edge real, vas a estar arriba.
+     Pensá en el largo plazo y no juzgues la estrategia por
+     resultados de una semana o un mes.
+
+
+───────────────────────────────────────────────────────────────
+6. CÓMO ESTIMAR TU PROBABILIDAD
+───────────────────────────────────────────────────────────────
+
+Esta es la parte más importante y la más difícil.
+
+  a) COMPARAR BOOKIES
+     El método más simple: usá las cuotas de Pinnacle (el bookie
+     más eficiente del mercado) como referencia de probabilidad
+     real y buscá cuotas mejores en otros bookies.
+     Si Pinnacle paga 2.00 y Betano paga 2.30 para lo mismo,
+     hay valor en Betano.
+
+  b) MODELO PROPIO
+     Si analizás estadísticas y tenés una estimación propia,
+     comparala con la cuota del bookie. Si tu modelo dice 60%
+     y el bookie implica 50%, hay edge.
+
+  c) SERVICIOS DE VALUE BETTING
+     Existen herramientas (RebelBetting, OddsJam, Trademate)
+     que detectan automáticamente cuotas con valor comparando
+     contra sharp books. Son de pago pero muy precisas.
+
+  Lo que NO es estimar probabilidad:
+    - "Siento que va a ganar"
+    - "Este equipo está en racha"
+    - "El estadio juega a favor"
+  Esas intuiciones no tienen respaldo estadístico.
+
+
+───────────────────────────────────────────────────────────────
+7. RESUMEN RÁPIDO — REGLAS DE ORO
+───────────────────────────────────────────────────────────────
+
+  1. Solo apostá cuando el EV sea positivo (mínimo +2%)
+  2. Stake máximo: 3-5% del bankroll por apuesta
+  3. Más EV = más stake, pero nunca más del 5%
+  4. Probabilidad alta sin edge no vale nada
+  5. Recalculá tu stake cada semana
+  6. Nunca persigas pérdidas
+  7. El volumen es tu amigo — necesitás cientos de apuestas
+  8. Llevá registro de todo (para eso está esta app)
+  9. Si un bookie te limita, es señal de que estás ganando
+ 10. Diversificá en varios bookies para extender la vida útil
+     de tus cuentas
+
+
+───────────────────────────────────────────────────────────────
+8. EJEMPLO PRÁCTICO COMPLETO
+───────────────────────────────────────────────────────────────
+
+  Bankroll total: $200.000
+
+  Apuesta encontrada:
+    Evento: Deportivo Riestra vs San Lorenzo
+    Selección: San Lorenzo
+    Tu probabilidad estimada: 30%
+    Cuota conseguida: 3.90
+    Probabilidad implícita del bookie: 1/3.90 = 25.6%
+
+  Cálculo EV:
+    EV = 0.30 × 3.90 - 1 = 0.17 = +17%
+
+  Cálculo Kelly:
+    b = 3.90 - 1 = 2.90
+    f = (0.30 × 2.90 - 0.70) / 2.90
+    f = (0.87 - 0.70) / 2.90
+    f = 0.17 / 2.90 = 5.86%
+
+  Cuarto Kelly: 5.86% × 0.25 = 1.46%
+  Stake sugerido: 1.46% × $200.000 = $2.920
+
+  Con tope del 3%: $2.920 entra bien dentro del límite.
+  Stake final: ~$3.000 (redondeado)
+
+  Este es el tipo de apuesta que querés buscar: EV alto,
+  cuota razonable, stake calculado con criterio.
+
+
+═══════════════════════════════════════════════════════════════
+  Recordá: una apuesta perdida con EV positivo sigue siendo
+  una buena apuesta. Una apuesta ganada con EV negativo sigue
+  siendo una mala apuesta. El resultado de corto plazo es ruido.
+  El edge de largo plazo es la señal.
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,19 @@
+# Entorno Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Variables de entorno (nunca subir al repo)
+.env
+apikey.env
+
+# Base de datos local (Railway usa volumen persistente)
+data/apuestas.db
+data/capturas/
+data/config.json
+
+# macOS
+.DS_Store

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apuestas de Valor</title>
+  <link rel="stylesheet" href="/static/style.css?v=6" />
+  <!-- Chart.js desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>⚡ Value Bets</h1>
+    <span>Tracker de apuestas EV+</span>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-item" data-section="dashboard" onclick="showSection('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" data-section="nueva" onclick="showSection('nueva')">
+        <span class="nav-icon">➕</span> Nueva Apuesta
+      </div>
+      <div class="nav-item" data-section="apuestas" onclick="showSection('apuestas')">
+        <span class="nav-icon">📋</span> Mis Apuestas
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Análisis</div>
+      <div class="nav-item" data-section="stats" onclick="showSection('stats')">
+        <span class="nav-icon">📈</span> Estadísticas
+      </div>
+      <div class="nav-item" data-section="calendario" onclick="showSection('calendario')">
+        <span class="nav-icon">📅</span> Calendario
+      </div>
+      <div class="nav-item" data-section="bookies" onclick="showSection('bookies')">
+        <span class="nav-icon">🏦</span> Bookies
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Herramientas</div>
+      <div class="nav-item" data-section="reglas" onclick="showSection('reglas')">
+        <span class="nav-icon">📐</span> Reglas
+      </div>
+      <div class="nav-item" data-section="retiros" onclick="showSection('retiros')">
+        <span class="nav-icon">💸</span> Retiros
+      </div>
+      <div class="nav-item" data-section="cola" onclick="showSection('cola')">
+        <span class="nav-icon">📥</span> Cola de Tickets
+        <span class="nav-badge" id="nav-cola-badge">0</span>
+      </div>
+    </div>
+  </div>
+  <div style="padding:16px 20px;border-top:1px solid var(--border);margin-top:auto">
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;text-decoration:none;padding:8px 10px;border-radius:6px;transition:background .15s"
+       onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+      <span>🔒</span> Cerrar sesión
+    </a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+═══════════════════════════════════════════ -->
+<main class="main-content">
+
+  <!-- ── DASHBOARD ──────────────────────── -->
+  <section id="section-dashboard" class="section">
+    <div class="section-title">Dashboard</div>
+    <div class="section-subtitle">Resumen general de tu actividad</div>
+
+    <!-- Hero bankroll -->
+    <div class="bankroll-hero" id="dash-bankroll-hero">
+      <div class="bankroll-hero-left">
+        <div class="bankroll-hero-label">BANKROLL TOTAL</div>
+        <div class="bankroll-hero-value" id="dash-hero-total">—</div>
+        <div class="bankroll-hero-sub" id="dash-hero-diff">Cargando...</div>
+        <div class="bankroll-hero-stake" id="dash-hero-stake">Stake sugerido (3%): —</div>
+        <div id="dash-stake-update" style="margin-top:10px"></div>
+      </div>
+      <div class="bankroll-hero-bookies" id="dash-hero-bookies"></div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-cards">
+      <div class="stat-card" id="dash-pnl">
+        <div class="stat-label">P&L Total</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" id="dash-roi">
+        <div class="stat-label">ROI %</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" id="dash-ev">
+        <div class="stat-label">EV Acumulado</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" id="dash-stake">
+        <div class="stat-label">Stake en Juego</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" id="dash-winrate">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" id="dash-racha">
+        <div class="stat-label">Racha actual</div>
+        <div class="stat-value">—</div>
+      </div>
+    </div>
+
+    <!-- Gráfico bankroll -->
+    <div class="card">
+      <div class="card-title">Evolución del Bankroll</div>
+      <div class="chart-wrapper">
+        <canvas id="chart-bankroll"></canvas>
+        <div id="chart-bankroll-empty" class="empty-state" style="display:none">
+          <div class="empty-icon">📉</div>
+          <p>Resolvé apuestas para ver la evolución del bankroll</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apuestas pendientes -->
+    <div class="card" id="dash-pendientes-card">
+      <div class="flex-between mb-0" style="margin-bottom:18px">
+        <div class="card-title" style="margin-bottom:0">
+          ⏳ Apuestas Pendientes
+          <span id="dash-pendientes-badge" class="badge badge-pendiente" style="margin-left:8px;font-size:12px"></span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showSection('apuestas')">Ver todas →</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Bookie</th>
+              <th>Evento</th>
+              <th>Cuota</th>
+              <th>Stake</th>
+              <th>EV%</th>
+              <th>Resolver</th>
+            </tr>
+          </thead>
+          <tbody id="dash-pendientes-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Últimas apuestas -->
+    <div class="card">
+      <div class="flex-between mb-0" style="margin-bottom:18px">
+        <div class="card-title" style="margin-bottom:0">Últimas 5 apuestas</div>
+        <button class="btn btn-ghost btn-sm" onclick="showSection('apuestas')">Ver todas →</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Bookie</th>
+              <th>Evento</th>
+              <th>Cuota</th>
+              <th>Stake</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="dash-ultimas-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NUEVA APUESTA ───────────────────── -->
+  <section id="section-nueva" class="section">
+    <div class="section-title">Nueva Apuesta</div>
+    <div class="section-subtitle">Registrá una nueva apuesta de valor</div>
+
+    <!-- Paso 1: Ticket -->
+    <div class="card">
+      <div class="card-title">Paso 1 — Pegar ticket (opcional)</div>
+      <div class="form-group">
+        <label class="form-label">Ticket / texto del bookie</label>
+        <textarea class="form-control" id="ticket-raw"
+          placeholder="Pegá aquí el texto del ticket. El parser intentará extraer cuota, stake, fecha y evento automáticamente..."></textarea>
+      </div>
+      <button class="btn btn-primary" id="btn-parsear" onclick="parsearTicket()">
+        🔍 Parsear ticket
+      </button>
+    </div>
+
+    <!-- Paso 2: Formulario -->
+    <div class="card">
+      <div class="card-title">Paso 2 — Completar datos</div>
+
+      <!-- EV preview -->
+      <div class="ev-display">
+        <div class="ev-label">Expected Value (EV%)</div>
+        <div class="ev-value" id="ev-preview">—</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Bookie *</label>
+          <select class="form-control" id="nueva-bookie">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha *</label>
+          <input type="date" class="form-control" id="nueva-fecha" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Evento *</label>
+        <input type="text" class="form-control" id="nueva-evento"
+          placeholder="Ej: Real Madrid vs Barcelona" />
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Mercado</label>
+          <input type="text" class="form-control" id="nueva-mercado"
+            placeholder="Ej: 1X2, Handicap, Over/Under..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Selección</label>
+          <input type="text" class="form-control" id="nueva-seleccion"
+            placeholder="Ej: Real Madrid, Over 2.5..." />
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Cuota *</label>
+          <input type="number" class="form-control" id="nueva-cuota"
+            placeholder="Ej: 1.85" step="0.01" min="1.01"
+            oninput="calcularEVPreview()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stake ($) *</label>
+          <input type="number" class="form-control" id="nueva-stake"
+            placeholder="Ej: 50" step="0.01" min="0.01" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Probabilidad estimada (%) *</label>
+          <input type="number" class="form-control" id="nueva-prob"
+            placeholder="Ej: 58" step="0.1" min="1" max="99"
+            oninput="calcularEVPreview()" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notas</label>
+        <input type="text" class="form-control" id="nueva-notas"
+          placeholder="Notas opcionales..." />
+      </div>
+
+      <div class="flex gap-12">
+        <button class="btn btn-primary" id="btn-guardar" onclick="guardarApuesta()">
+          💾 Guardar apuesta
+        </button>
+        <button class="btn btn-ghost" onclick="limpiarFormularioNueva()">
+          ✕ Limpiar
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MIS APUESTAS ────────────────────── -->
+  <section id="section-apuestas" class="section">
+    <div class="section-title">Mis Apuestas</div>
+    <div class="section-subtitle">Historial completo con filtros</div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <div class="form-group">
+        <label class="form-label">Bookie</label>
+        <select class="form-control" id="filtro-bookie" onchange="loadApuestas()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select class="form-control" id="filtro-estado" onchange="loadApuestas()">
+          <option value="">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="ganada">W — Ganada</option>
+          <option value="perdida">L — Perdida</option>
+          <option value="anulada">D — Anulada</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Desde</label>
+        <input type="date" class="form-control" id="filtro-desde" onchange="loadApuestas()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasta</label>
+        <input type="date" class="form-control" id="filtro-hasta" onchange="loadApuestas()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">&nbsp;</label>
+        <button class="btn btn-ghost" onclick="limpiarFiltros()">✕ Limpiar</button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Bookie</th>
+              <th>Evento</th>
+              <th>Cuota</th>
+              <th>Stake</th>
+              <th>EV%</th>
+              <th>Estado</th>
+              <th>P&L</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="apuestas-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text-muted)">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ESTADÍSTICAS ─────────────────────── -->
+  <section id="section-stats" class="section">
+    <div class="section-title">Estadísticas</div>
+    <div class="section-subtitle">Performance global y por bookie</div>
+
+    <!-- Stat cards dinámicas -->
+    <div class="stat-cards" id="stats-cards">
+      <div class="stat-card">
+        <div class="stat-label">Cargando...</div>
+        <div class="stat-value">—</div>
+      </div>
+    </div>
+
+    <!-- Tabla por bookie -->
+    <div class="card">
+      <div class="card-title">Performance por Bookie</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Bookie</th>
+              <th>Apuestas</th>
+              <th>Ganadas</th>
+              <th>Perdidas</th>
+              <th>ROI %</th>
+              <th>P&L</th>
+              <th>Total Apostado</th>
+            </tr>
+          </thead>
+          <tbody id="stats-bookie-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Gráfico barras P&L por bookie -->
+    <div class="card">
+      <div class="card-title">P&L por Bookie</div>
+      <div class="chart-wrapper">
+        <canvas id="chart-bookie"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BOOKIES ─────────────────────────── -->
+  <section id="section-bookies" class="section">
+    <div class="flex-between" style="margin-bottom:8px">
+      <div class="section-title" style="margin-bottom:0">Bookies</div>
+      <button class="btn btn-primary" onclick="openAddBookieModal()">
+        ➕ Agregar bookie
+      </button>
+    </div>
+    <div class="section-subtitle">Gestioná tus casas de apuesta</div>
+
+    <div class="bookie-list" id="bookies-list">
+      <div style="color:var(--text-muted);padding:24px">Cargando...</div>
+    </div>
+  </section>
+
+  <!-- ── CALENDARIO ──────────────────────── -->
+  <section id="section-calendario" class="section">
+    <div class="flex-between" style="margin-bottom:4px">
+      <div class="section-title" style="margin-bottom:0">Calendario</div>
+      <div class="cal-nav">
+        <button class="btn btn-ghost btn-sm" onclick="calCambiarMes(-1)">‹</button>
+        <span id="cal-titulo" style="font-weight:600;font-size:15px;min-width:140px;text-align:center"></span>
+        <button class="btn btn-ghost btn-sm" onclick="calCambiarMes(1)">›</button>
+      </div>
+    </div>
+    <div class="section-subtitle">Resultado diario de tus apuestas</div>
+
+    <!-- Resumen del mes -->
+    <div class="stat-cards" id="cal-resumen" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px"></div>
+
+    <!-- Grilla del calendario -->
+    <div class="card" style="padding:20px">
+      <div class="cal-grid-header">
+        <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- Detalle del día seleccionado -->
+    <div class="card" id="cal-detalle-card" style="display:none">
+      <div class="card-title" id="cal-detalle-titulo"></div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr>
+            <th>Bookie</th><th>Evento</th><th>Selección</th><th>Cuota</th><th>Stake</th><th>Estado</th><th>P&L</th>
+          </tr></thead>
+          <tbody id="cal-detalle-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── RETIROS ──────────────────────────── -->
+  <section id="section-retiros" class="section">
+    <div class="section-title">Retiros de Ganancia</div>
+    <div class="section-subtitle">Historial de retiros y re-fondeos por bookie</div>
+
+    <div class="stat-cards" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+      <div class="stat-card" id="retiros-total-card">
+        <div class="stat-label">Total Retirado</div>
+        <div class="stat-value positive" id="retiros-total-monto">—</div>
+        <div class="stat-sub">Ganancias retiradas acumuladas</div>
+      </div>
+      <div class="stat-card" id="retiros-refondeo-card">
+        <div class="stat-label">Total Re-fondeado</div>
+        <div class="stat-value warning" id="retiros-refondeo-monto">—</div>
+        <div class="stat-sub">Capital re-ingresado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ganancia Neta Retirada</div>
+        <div class="stat-value positive" id="retiros-neto-monto">—</div>
+        <div class="stat-sub">Retirado menos re-fondeado</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div class="card-title" style="margin:0">Historial</div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Bookie</th>
+              <th>Tipo</th>
+              <th>Monto</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="retiros-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Sin retiros registrados</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REGLAS ───────────────────────────── -->
+  <section id="section-reglas" class="section">
+    <div class="section-title">Reglas de Stake</div>
+    <div class="section-subtitle">Ajustes al stake base según EV% y probabilidad estimada</div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Stake base actual</div>
+          <div id="reglas-stake-base" style="font-size:28px;font-weight:800;color:var(--accent-yellow)">—</div>
+        </div>
+        <div style="color:var(--text-muted);font-size:13px;max-width:480px">
+          Las tablas muestran cuánto <strong>sumar o restar</strong> al stake base para cada apuesta según su EV% y probabilidad.
+          El stake final = stake base + ajuste EV + ajuste probabilidad.
+        </div>
+        <div style="margin-left:auto">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Fecha de inicio</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="date" class="form-control" id="reglas-fecha-inicio" style="width:160px" />
+            <button class="btn btn-ghost btn-sm" onclick="guardarFechaInicio()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <!-- Tabla EV+ -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <div class="card-title" style="margin:0">Ajuste por EV%</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Rango EV</th>
+              <th>Ajuste</th>
+              <th>Stake final</th>
+            </tr>
+          </thead>
+          <tbody id="reglas-ev-tbody"></tbody>
+        </table>
+      </div>
+      <!-- Tabla Probabilidad -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <div class="card-title" style="margin:0">Ajuste por Probabilidad</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Rango Prob</th>
+              <th>Ajuste</th>
+              <th>Stake final</th>
+            </tr>
+          </thead>
+          <tbody id="reglas-prob-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COLA DE TICKETS ──────────────────── -->
+  <section id="section-cola" class="section">
+    <div class="cola-header">
+      <div class="section-title">Cola de Tickets</div>
+      <span class="cola-count-badge" id="cola-count-badge">0 pendientes</span>
+    </div>
+    <div class="section-subtitle" style="margin-bottom:24px">Guardá capturas para cargarlas cuando tengas tiempo</div>
+
+    <!-- Zona de pegado -->
+    <div class="cola-drop-zone" id="cola-drop-zone">
+      <div class="drop-icon">📋</div>
+      <div class="drop-title">Ctrl+V para pegar una captura</div>
+      <div class="drop-hint">También podés arrastrar y soltar una imagen aquí</div>
+    </div>
+
+    <!-- Grid de capturas -->
+    <div class="cola-grid" id="cola-grid">
+      <!-- Se rellena con JS -->
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     MODAL — Nuevo Bookie
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-nuevo-bookie">
+  <div class="modal">
+    <h3>Agregar nuevo bookie</h3>
+    <div class="form-group">
+      <label class="form-label">Nombre del bookie</label>
+      <input type="text" class="form-control" id="input-nuevo-bookie"
+        placeholder="Ej: 1xBet, Sportium..." />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fondos iniciales ($)</label>
+      <input type="number" class="form-control" id="input-fondos-iniciales"
+        placeholder="Ej: 500" step="0.01" min="0" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAddBookieModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarNuevoBookie()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar fondos -->
+<div class="modal-overlay" id="modal-editar-fondos">
+  <div class="modal">
+    <h3>Editar balance del bookie</h3>
+    <div id="modal-fondos-bookie-nombre" style="color:var(--text-muted);margin-bottom:4px;font-size:14px"></div>
+    <div id="modal-fondos-bookie-actual" style="color:var(--accent-yellow);margin-bottom:16px;font-size:13px"></div>
+    <div class="form-group">
+      <label class="form-label">Nuevo balance ($)</label>
+      <input type="number" class="form-control" id="input-editar-fondos"
+        placeholder="Ej: 120" step="0.01" min="0" />
+      <div style="font-size:12px;color:var(--text-muted);margin-top:6px">
+        Si bajás el balance, la diferencia se registra como <strong>retiro de ganancia</strong>.<br>
+        Si subís el balance, se registra como <strong>re-fondeo</strong>.
+      </div>
+    </div>
+    <input type="hidden" id="input-editar-fondos-id" />
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeEditarFondosModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarEditarFondos()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="/static/app.js?v=11"></script>
+<script>
+  // Función helper para limpiar filtros (definida inline para acceso directo)
+  function limpiarFiltros() {
+    document.getElementById("filtro-bookie").value = "";
+    document.getElementById("filtro-estado").value = "";
+    document.getElementById("filtro-desde").value = "";
+    document.getElementById("filtro-hasta").value = "";
+    loadApuestas();
+  }
+</script>
+</body>
+</html>

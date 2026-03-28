@@ -32,8 +32,14 @@ from database import toggle_bookie, add_bookie, get_bookie_by_id, update_fondos_
 from stats import calcular_stats, stats_por_bookie
 from parser import parse_ticket
 
-# ── Config (data/config.json) ─────────────────
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "data", "config.json")
+# ── Detectar entorno Vercel ────────────────────
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+
+# ── Config (data/config.json o /tmp en Vercel) ─
+if IS_VERCEL:
+    CONFIG_PATH = "/tmp/config.json"
+else:
+    CONFIG_PATH = os.path.join(os.path.dirname(__file__), "data", "config.json")
 
 def _load_config():
     if os.path.exists(CONFIG_PATH):
@@ -68,10 +74,19 @@ def login_required(f):
 # INICIALIZACIÓN
 # ──────────────────────────────────────────────
 
+_db_initialized = False
+
 @app.before_request
 def setup():
-    """Inicializa la DB y verifica autenticación."""
-    init_db()
+    """Inicializa la DB (solo una vez) y verifica autenticación."""
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            init_db()
+            _db_initialized = True
+        except Exception as e:
+            # Si falla init_db, loguear pero no romper la app
+            app.logger.error(f"Error init_db: {e}")
     # Proteger todas las rutas excepto login/logout y estáticos
     if not session.get("autenticado"):
         if request.endpoint not in ("login", "logout", "static"):
@@ -508,7 +523,7 @@ def api_calendario():
 # API — COLA DE CAPTURAS
 # ──────────────────────────────────────────────
 
-CAPTURAS_DIR = os.path.join(os.path.dirname(__file__), "data", "capturas")
+CAPTURAS_DIR = "/tmp/capturas" if IS_VERCEL else os.path.join(os.path.dirname(__file__), "data", "capturas")
 
 
 def _ensure_capturas_dir():
@@ -611,7 +626,10 @@ def api_eliminar_captura(captura_id):
 
 @app.route("/api/backup/db")
 def api_backup_db():
-    """Descarga la base de datos SQLite completa."""
+    """Descarga la base de datos SQLite completa (solo modo local)."""
+    from database import USE_PG
+    if USE_PG:
+        return jsonify({"error": "Backup DB no disponible en modo PostgreSQL. Usá Exportar CSV."}), 400
     from database import DB_PATH
     fecha = datetime.now().strftime("%Y-%m-%d_%H-%M")
     return send_file(

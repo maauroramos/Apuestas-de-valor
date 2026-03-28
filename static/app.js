@@ -785,6 +785,37 @@ function limpiarFormularioNueva() {
 // ═══════════════════════════════════════════
 // MIS APUESTAS
 // ═══════════════════════════════════════════
+function filtrarPeriodo(periodo) {
+  const hoy = new Date();
+  const toISO = d => d.toISOString().split("T")[0];
+
+  let desde, hasta;
+
+  if (periodo === "hoy") {
+    desde = hasta = toISO(hoy);
+  } else if (periodo === "ayer") {
+    const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
+    desde = hasta = toISO(ayer);
+  } else if (periodo === "semana") {
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+    desde = toISO(lunes);
+    hasta = toISO(hoy);
+  } else if (periodo === "mes") {
+    desde = toISO(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+    hasta = toISO(hoy);
+  } else if (periodo === "mes_anterior") {
+    const primerDiaMesAnt = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+    const ultimoDiaMesAnt = new Date(hoy.getFullYear(), hoy.getMonth(), 0);
+    desde = toISO(primerDiaMesAnt);
+    hasta = toISO(ultimoDiaMesAnt);
+  }
+
+  document.getElementById("filtro-desde").value = desde;
+  document.getElementById("filtro-hasta").value = hasta;
+  loadApuestas();
+}
+
 async function loadApuestas() {
   // Cargar bookies en el filtro solo si aún no están cargados
   const filtroSelect = document.getElementById("filtro-bookie");
@@ -1040,8 +1071,8 @@ function renderBookiesList(bookies) {
         <div class="bookie-status">${b.activo ? "Activo" : "Inactivo"}</div>
         ${sinFondos ? `
           <div style="margin-top:10px">
-            <button class="btn btn-ghost btn-sm" onclick="openEditarFondosModal(${b.id}, '${b.nombre}', ${fondosIni})">
-              + Agregar fondos iniciales
+            <button class="btn btn-ghost btn-sm" onclick="openEditarFondosModal(${b.id}, '${b.nombre}', ${fondosAct})">
+              Actualizar balance
             </button>
           </div>
         ` : `
@@ -1058,7 +1089,7 @@ function renderBookiesList(bookies) {
               <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Resultado</div>
               <div style="font-size:16px;font-weight:600" class="${diffClass}">${diffStr}</div>
             </div>
-            <button class="btn btn-ghost btn-sm" onclick="openEditarFondosModal(${b.id}, '${b.nombre}', ${fondosIni})" style="margin-left:auto">
+            <button class="btn btn-ghost btn-sm" onclick="openEditarFondosModal(${b.id}, '${b.nombre}', ${fondosAct})" style="margin-left:auto">
               ✏️ Editar
             </button>
           </div>

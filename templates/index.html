@@ -333,6 +333,15 @@
       </div>
     </div>
 
+    <!-- Accesos rápidos por período -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn btn-ghost btn-sm" onclick="filtrarPeriodo('hoy')">Hoy</button>
+      <button class="btn btn-ghost btn-sm" onclick="filtrarPeriodo('ayer')">Ayer</button>
+      <button class="btn btn-ghost btn-sm" onclick="filtrarPeriodo('semana')">Esta semana</button>
+      <button class="btn btn-ghost btn-sm" onclick="filtrarPeriodo('mes')">Este mes</button>
+      <button class="btn btn-ghost btn-sm" onclick="filtrarPeriodo('mes_anterior')">Mes anterior</button>
+    </div>
+
     <!-- Tabla -->
     <div class="card" style="padding:0;overflow:hidden">
       <div class="table-wrapper">
@@ -634,7 +643,7 @@
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-<script src="/static/app.js?v=12"></script>
+<script src="/static/app.js?v=13"></script>
 <script>
   // Función helper para limpiar filtros (definida inline para acceso directo)
   function limpiarFiltros() {

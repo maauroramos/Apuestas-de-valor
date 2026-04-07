@@ -1281,6 +1281,11 @@ function calcularStake() {
     document.getElementById("calc-prob-rango").textContent  = "";
     document.getElementById("calc-stake-final").textContent = "No apostar";
     document.getElementById("calc-stake-fuera-rango").style.display = "none";
+    document.getElementById("calc-stake-custom").value = "";
+    document.getElementById("calc-stake-custom").dataset.sugerido = "0";
+    document.getElementById("calc-stake-custom").dataset.edited = "";
+    document.getElementById("calc-stake-diff").style.display = "none";
+    document.getElementById("calc-stake-reset").style.display = "none";
     return;
   }
   alertaEl.style.display = "none";
@@ -1303,7 +1308,20 @@ function calcularStake() {
   const stakeBase2 = ajusteEV   !== null ? stakeBase + ajusteEV   : stakeBase;
   const stakeFinal = ajusteProb !== null ? stakeBase2 + ajusteProb : stakeBase2;
 
-  document.getElementById("calc-stake-final").textContent = `$${fmt(Math.max(0, stakeFinal))}`;
+  const stakeFinalVal = Math.max(0, round2(stakeFinal));
+  document.getElementById("calc-stake-final").textContent = `$${fmt(stakeFinalVal)}`;
+
+  // Sincronizar input custom con el sugerido
+  const customInput = document.getElementById("calc-stake-custom");
+  const resetBtn    = document.getElementById("calc-stake-reset");
+  const diffEl      = document.getElementById("calc-stake-diff");
+
+  // Solo actualizar si el usuario no lo editó manualmente
+  if (!customInput.dataset.edited) {
+    customInput.value = stakeFinalVal;
+  }
+  customInput.dataset.sugerido = stakeFinalVal;
+  _updateStakeDiff();
 
   const fueraEl = document.getElementById("calc-stake-fuera-rango");
   if (fueraDeRango) {
@@ -1315,6 +1333,47 @@ function calcularStake() {
 
   resultadosEl.style.display = "flex";
 }
+
+function _updateStakeDiff() {
+  const customInput = document.getElementById("calc-stake-custom");
+  const resetBtn    = document.getElementById("calc-stake-reset");
+  const diffEl      = document.getElementById("calc-stake-diff");
+  const sugerido    = parseFloat(customInput.dataset.sugerido) || 0;
+  const actual      = parseFloat(customInput.value) || 0;
+  const diff        = round2(actual - sugerido);
+
+  if (Math.abs(diff) < 0.01) {
+    diffEl.style.display  = "none";
+    resetBtn.style.display = "none";
+    customInput.dataset.edited = "";
+  } else {
+    const sign = diff > 0 ? "+" : "";
+    diffEl.style.display = "block";
+    diffEl.textContent = `${sign}$${fmt(diff)} vs sugerido`;
+    diffEl.style.color = diff > 0 ? "var(--accent-yellow)" : "var(--accent-blue)";
+    resetBtn.style.display = "inline-block";
+  }
+}
+
+// Listeners para stake custom
+document.addEventListener("DOMContentLoaded", () => {
+  const customInput = document.getElementById("calc-stake-custom");
+  const resetBtn    = document.getElementById("calc-stake-reset");
+
+  if (customInput) {
+    customInput.addEventListener("input", () => {
+      customInput.dataset.edited = "1";
+      _updateStakeDiff();
+    });
+  }
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      customInput.value = customInput.dataset.sugerido || "";
+      customInput.dataset.edited = "";
+      _updateStakeDiff();
+    });
+  }
+});
 
 async function loadCalculadora() {
   try {

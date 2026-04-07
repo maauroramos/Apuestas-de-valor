@@ -634,6 +634,16 @@
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-blue);margin-bottom:8px;font-weight:700">Stake recomendado</div>
           <div id="calc-stake-final" style="font-size:32px;font-weight:800;color:var(--text-primary)"></div>
           <div id="calc-stake-fuera-rango" style="display:none;font-size:12px;color:var(--accent-yellow);margin-top:6px"></div>
+          <!-- Stake personalizado -->
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+            <label for="calc-stake-custom" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600">Stake a usar</label>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px">
+              <span style="font-size:18px;font-weight:700;color:var(--text-muted)">$</span>
+              <input type="number" id="calc-stake-custom" min="0" step="0.01" style="width:120px;font-size:22px;font-weight:700;text-align:center;background:var(--bg-card-hover);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text-primary)" />
+              <button id="calc-stake-reset" title="Volver al sugerido" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;color:var(--text-muted);display:none">↩</button>
+            </div>
+            <div id="calc-stake-diff" style="font-size:12px;margin-top:4px;color:var(--text-muted);display:none"></div>
+          </div>
         </div>
 
       </div>
